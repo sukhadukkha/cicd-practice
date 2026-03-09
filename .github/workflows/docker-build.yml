@@ -24,3 +24,15 @@ jobs:
             context: .
             push: true
             tags: ${{ secrets.DOCKERHUB_USERNAME }}/cicd-practice:latest
+
+        - name: EC2 배포
+          uses: appleboy/ssh-action@v1
+          with:
+            host: ${{ secrets.EC2_HOST }}
+            username: ubuntu
+            key: ${{ secrets.EC2_SSH_KEY }}
+            script: |
+              docker pull ${{ secrets.DOCKERHUB_USERNAME }}/cicd-practice:latest
+              docker stop cicd-practice || true
+              docker rm cicd-practice || true
+              docker run -d -p 8080:8080 --name cicd-practice ${{ secrets.DOCKERHUB_USRNAME }}/cicd-practice:latest
